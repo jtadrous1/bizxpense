@@ -48,3 +48,32 @@ export interface ExpenseFilters {
   amountMax?: string;
   paymentMethod?: string;
 }
+
+export interface RecurringExpenseWithCategory {
+  id: string;
+  vendor: string;
+  description: string | null;
+  amount: string;
+  categoryId: string | null;
+  category: {
+    id: string;
+    name: string;
+    color: string;
+    scheduleCCode: string | null;
+  } | null;
+  paymentMethod: string | null;
+  notes: string | null;
+  tags: string | null;
+  frequency: string;
+  dayOfMonth: number;
+  startDate: string;
+  endDate: string | null;
+  nextDueDate: string;
+  isActive: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: {
+    expenses: number;
+  };
+}

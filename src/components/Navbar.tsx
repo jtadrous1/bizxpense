@@ -10,8 +10,10 @@ const mobileNav = [
   { name: "Dashboard", href: "/dashboard" },
   { name: "Expenses", href: "/expenses" },
   { name: "Add", href: "/expenses/new" },
+  { name: "Recurring", href: "/recurring-expenses" },
   { name: "Categories", href: "/categories" },
   { name: "Reports", href: "/reports" },
+  { name: "Accounts", href: "/accounts" },
 ];
 
 export default function Navbar() {

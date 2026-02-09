@@ -1,19 +1,17 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: biztracker
-      POSTGRES_PASSWORD: biztracker_secret
-      POSTGRES_DB: bizexpensetracker
+      POSTGRES_USER: ${POSTGRES_USER:-biztracker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-biztracker_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-bizexpensetracker}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5433}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U biztracker -d bizexpensetracker"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-biztracker} -d ${POSTGRES_DB:-bizexpensetracker}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,12 +20,15 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${APP_PORT:-3000}:3000"
     environment:
-      DATABASE_URL: "postgresql://biztracker:biztracker_secret@db:5432/bizexpensetracker?schema=public"
-      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET:-change-me-to-a-random-string-at-least-32-chars}"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-biztracker}:${POSTGRES_PASSWORD:-biztracker_secret}@db:5432/${POSTGRES_DB:-bizexpensetracker}?schema=public"
+      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET}"
       NEXTAUTH_URL: "${NEXTAUTH_URL:-http://localhost:3000}"
       UPLOAD_DIR: "/app/uploads"
+      PLAID_CLIENT_ID: "${PLAID_CLIENT_ID:-}"
+      PLAID_SECRET: "${PLAID_SECRET:-}"
+      PLAID_ENV: "${PLAID_ENV:-sandbox}"
     volumes:
       - uploads:/app/uploads
     depends_on:

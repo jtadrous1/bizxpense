@@ -11,6 +11,11 @@ export default function DashboardPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
 
+  // Auto-process recurring expenses on first load
+  useEffect(() => {
+    fetch("/api/recurring-expenses/process", { method: "POST" }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     setLoading(true);
     fetch(`/api/dashboard?year=${year}`)

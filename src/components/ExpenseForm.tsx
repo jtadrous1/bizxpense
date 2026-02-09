@@ -49,7 +49,7 @@ export default function ExpenseForm({ expense }: ExpenseFormProps) {
 
   useEffect(() => {
     fetch("/api/categories")
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : Promise.reject("API error")))
       .then(setCategories)
       .catch(console.error);
   }, []);

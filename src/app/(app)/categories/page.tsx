@@ -23,7 +23,7 @@ export default function CategoriesPage() {
   const fetchCategories = () => {
     setLoading(true);
     fetch("/api/categories")
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : Promise.reject("API error")))
       .then((data) => {
         setCategories(data);
         setLoading(false);

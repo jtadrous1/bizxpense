@@ -19,7 +19,7 @@ export default function DashboardPage() {
   useEffect(() => {
     setLoading(true);
     fetch(`/api/dashboard?year=${year}`)
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : Promise.reject("API error")))
       .then((d) => {
         setData(d);
         setLoading(false);

@@ -21,7 +21,7 @@ export default function SearchFilters({ filters, onChange }: SearchFiltersProps)
 
   useEffect(() => {
     fetch("/api/categories")
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : Promise.reject("API error")))
       .then(setCategories)
       .catch(console.error);
   }, []);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { usePlaidLink } from "react-plaid-link";
+import { usePlaidLink, PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 
 interface PlaidLinkButtonProps {
   onSuccess: () => void;
@@ -30,7 +30,7 @@ export default function PlaidLinkButton({ onSuccess }: PlaidLinkButtonProps) {
   }, []);
 
   const onPlaidSuccess = useCallback(
-    async (publicToken: string, metadata: Record<string, unknown>) => {
+    async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
       try {
         const res = await fetch("/api/plaid/exchange-token", {
           method: "POST",

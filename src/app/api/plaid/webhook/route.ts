@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { syncItemTransactions } from "@/app/api/plaid/sync/route";
+import { syncItemTransactions } from "@/lib/plaid-sync";
 
 // POST /api/plaid/webhook — called by Plaid when new transactions are available
 export async function POST(req: NextRequest) {

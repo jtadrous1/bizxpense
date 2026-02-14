@@ -29,12 +29,13 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Prisma (include CLI so we use the project's version, not latest)
+# Prisma schema + generated client
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
+# Install Prisma CLI (v6) with all its dependencies for runtime db push
+RUN npm install --no-save prisma@6
 
 # Create uploads dir
 RUN mkdir -p /app/uploads && chown nextjs:nodejs /app/uploads
@@ -46,4 +47,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Run migrations then start
-CMD ["sh", "-c", "node node_modules/prisma/build/index.js db push && node server.js"]
+CMD ["sh", "-c", "npx prisma db push && node server.js"]

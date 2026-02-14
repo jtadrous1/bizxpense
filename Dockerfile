@@ -5,6 +5,8 @@ FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
+COPY prisma ./prisma
+RUN npx prisma generate
 
 # --- Build ---
 FROM base AS builder
@@ -12,7 +14,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN mkdir -p public
-RUN npx prisma generate
 RUN npm run build
 
 # --- Migrator (used by docker-compose to push schema before app starts) ---
@@ -38,8 +39,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Prisma generated client (needed at runtime by the app)
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=deps /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Create uploads dir
 RUN mkdir -p /app/uploads && chown nextjs:nodejs /app/uploads

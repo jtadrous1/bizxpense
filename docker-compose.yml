@@ -16,8 +16,20 @@ services:
       timeout: 5s
       retries: 5
 
+  migrate:
+    build:
+      context: .
+      target: migrator
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-biztracker}:${POSTGRES_PASSWORD:-biztracker_secret}@db:5432/${POSTGRES_DB:-bizexpensetracker}?schema=public"
+    depends_on:
+      db:
+        condition: service_healthy
+
   app:
-    build: .
+    build:
+      context: .
+      target: runner
     restart: unless-stopped
     ports:
       - "${APP_PORT:-3000}:3000"
@@ -34,6 +46,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   pgdata:

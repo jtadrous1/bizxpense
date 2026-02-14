@@ -15,6 +15,13 @@ RUN mkdir -p public
 RUN npx prisma generate
 RUN npm run build
 
+# --- Migrator (used by docker-compose to push schema before app starts) ---
+FROM base AS migrator
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY prisma ./prisma
+CMD ["npx", "prisma", "db", "push"]
+
 # --- Production ---
 FROM base AS runner
 WORKDIR /app
@@ -26,16 +33,13 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy built app (standalone)
+COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Prisma schema + generated client
-COPY --from=builder /app/prisma ./prisma
+# Prisma generated client (needed at runtime by the app)
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# Install Prisma CLI (v6) with all its dependencies for runtime db push
-RUN npm install --no-save prisma@6
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Create uploads dir
 RUN mkdir -p /app/uploads && chown nextjs:nodejs /app/uploads
@@ -46,5 +50,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Run migrations then start
-CMD ["sh", "-c", "npx prisma db push && node server.js"]
+CMD ["node", "server.js"]

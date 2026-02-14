@@ -17,10 +17,11 @@ export async function POST() {
     });
 
     return NextResponse.json({ link_token: response.data.link_token });
-  } catch (error: unknown) {
-    console.error("Plaid link token error:", error);
+  } catch (error: any) {
+    const plaidError = error?.response?.data;
+    console.error("Plaid link token error:", plaidError || error);
     const message =
-      error instanceof Error ? error.message : "Failed to create link token";
+      plaidError?.error_message || (error instanceof Error ? error.message : "Failed to create link token");
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -54,7 +54,7 @@ export async function PUT(
     const expense = await prisma.expense.update({
       where: { id },
       data: {
-        date: new Date(date),
+        date: new Date(date + "T12:00:00"),
         vendor,
         description: description || null,
         amount: parseFloat(amount),
